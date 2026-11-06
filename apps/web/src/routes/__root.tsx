@@ -1,10 +1,5 @@
-import type { ReactNode } from 'react'
-import {
-  createRootRoute,
-  HeadContent,
-  Outlet,
-  Scripts,
-} from '@tanstack/react-router'
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { RootDocument } from '../components/root-document'
 import appCss from '../index.css?url'
 
 export const Route = createRootRoute({
@@ -17,24 +12,8 @@ export const Route = createRootRoute({
       },
       { title: 'Tickets' },
     ],
-    links: [
-      { rel: 'stylesheet', href: appCss },
-    ],
+    links: [{ rel: 'stylesheet', href: appCss }],
   }),
   component: Outlet,
   shellComponent: RootDocument,
 })
-
-function RootDocument({ children }: { children: ReactNode }) {
-  return (
-    <html lang="fr">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  )
-}

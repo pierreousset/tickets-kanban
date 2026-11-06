@@ -8,10 +8,13 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "packageManager": "bun@1.4.4",
   "devDependencies": {
+    "prettier": "3.9.10",
     "turbo": "2.11.10"
   }
 }
