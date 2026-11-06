@@ -1,0 +1,20 @@
+scalar DateTime
+enum TicketStatus {
+  todo
+  in_progress
+  done
+  cancelled
+}
+
+type Ticket {
+  id: ID!
+  title: String!
+  description: String!
+  status: TicketStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  tickets: [Ticket!]!
+}

@@ -26,7 +26,12 @@ export default function App() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-5xl">
-        <Header tickets={tickets} setTickets={setTickets} statusFilter={statusFilter} setStatusFilter={setStatusFilter} />
+        <Header
+          tickets={tickets}
+          setTickets={setTickets}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+        />
         <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredTickets.map((ticket) => (
             <li key={ticket.id}>

@@ -1,0 +1,25 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx watch --include schema.graphql src/server.ts",
+    "start": "NODE_ENV=production node dist/server.js",
+    "build": "tsc -p tsconfig.json",
+    "lint": "oxlint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "fastify": "5",
+    "graphql": "16",
+    "graphql-scalars": "^2.0.1",
+    "mercurius": "16"
+  },
+  "devDependencies": {
+    "@types/node": "26",
+    "oxlint": "^1.90.0",
+    "tsx": "^4.23.15",
+    "typescript": "~7.0.2"
+  }
+}
