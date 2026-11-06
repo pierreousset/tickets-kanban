@@ -73,10 +73,18 @@ const useTickets = () => {
     id: string,
     status: TicketStatus,
   ): Promise<void> => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       commitMutation<UpdateTicketStatusMutation>(environment, {
         mutation: updateTicketStatusMutation,
         variables: { id, status },
+
+        optimisticResponse: {
+          updateTicketStatus: {
+            id,
+            status,
+            updatedAt: new Date().toISOString(),
+          },
+        },
 
         onCompleted: (_response, errors) => {
           if (errors?.length) {

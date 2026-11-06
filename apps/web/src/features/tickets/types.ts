@@ -26,4 +26,6 @@ const isTicketStatus = (value: unknown): value is TicketStatus => {
   )
 }
 
+export type StatusFilter = 'all' | TicketStatus
+
 export { isTicketStatus }

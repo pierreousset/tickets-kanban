@@ -1,111 +1,145 @@
-import { useState } from 'react'
+import { useDraggable } from '@dnd-kit/react'
+import { Ellipsis, GripVertical, LoaderCircle } from 'lucide-react'
 
+import { Button } from '@repo/ui/components/button'
+import { Card } from '@repo/ui/components/card'
 import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@repo/ui/components/card'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@repo/ui/components/select'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@repo/ui/components/dropdown-menu'
+import { cn } from '@repo/ui/lib/utils'
 
+import { ticketStatuses } from '../ticket-statuses'
 import { isTicketStatus } from '../types'
 import type { TicketStatus, TicketView } from '../types'
 
-const statusOptions: { value: TicketStatus; label: string }[] = [
-  { value: 'todo', label: 'À faire' },
-  { value: 'in_progress', label: 'En cours' },
-  { value: 'done', label: 'Terminé' },
-  { value: 'cancelled', label: 'Annulé' },
-]
-
 type TicketCardProps = {
   ticket: TicketView
-  onStatusChange: (ticketId: string, status: TicketStatus) => Promise<void>
+  isUpdating: boolean
+  onStatusChange: (id: string, status: TicketStatus) => Promise<void>
 }
 
-const TicketCard = ({ ticket, onStatusChange }: TicketCardProps) => {
-  const [isUpdating, setIsUpdating] = useState(false)
-  const [updateError, setUpdateError] = useState<string | null>(null)
+const TicketCard = ({
+  ticket,
+  isUpdating,
+  onStatusChange,
+}: TicketCardProps) => {
+  const { ref, handleRef, isDragging } = useDraggable({
+    id: ticket.id,
+    type: 'ticket',
+    disabled: isUpdating,
+  })
 
-  const handleStatusChange = async (status: TicketStatus) => {
-    if (isUpdating || status === ticket.status) return
-
-    setIsUpdating(true)
-    setUpdateError(null)
-
-    try {
-      await onStatusChange(ticket.id, status)
-    } catch (error) {
-      setUpdateError(
-        error instanceof Error ? error.message : 'Modification impossible.',
-      )
-    } finally {
-      setIsUpdating(false)
+  const handleStatusChange = async (value: unknown) => {
+    if (!isTicketStatus(value) || value === ticket.status || isUpdating) {
+      return
     }
+
+    await onStatusChange(ticket.id, value)
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>{ticket.title}</CardTitle>
-        <CardDescription>{ticket.description}</CardDescription>
-      </CardHeader>
+    <Card
+      ref={ref}
+      id={`ticket-${ticket.id}`}
+      role="group"
+      tabIndex={-1}
+      aria-labelledby={`ticket-title-${ticket.id}`}
+      aria-busy={isUpdating}
+      className={cn(
+        'gap-2 rounded-xl border border-border/70 bg-card p-3 shadow-xs ring-0',
+        'transition-[border-color,box-shadow] duration-150 motion-reduce:transition-none',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        isDragging
+          ? 'border-primary/40 shadow-md'
+          : 'hover:border-foreground/15 hover:shadow-sm',
+      )}
+    >
+      <div className="flex items-start gap-2">
+        <h3
+          id={`ticket-title-${ticket.id}`}
+          className="min-w-0 flex-1 break-words pt-1 text-sm font-medium leading-5"
+        >
+          {ticket.title}
+        </h3>
 
-      <CardFooter className="flex-col items-stretch gap-2">
-        {ticket.status === 'unknown' ? (
-          <p className="text-sm text-muted-foreground">
-            Statut non pris en charge.
-          </p>
-        ) : (
-          <Select
-            items={statusOptions}
-            value={ticket.status}
+        <div className="flex shrink-0 items-center">
+          <Button
+            ref={handleRef}
+            type="button"
+            variant="ghost"
+            size="icon"
             disabled={isUpdating}
-            onValueChange={(value) => {
-              if (isTicketStatus(value)) {
-                void handleStatusChange(value)
-              }
-            }}
+            aria-label={
+              isUpdating
+                ? `Enregistrement du ticket ${ticket.title}`
+                : `Déplacer le ticket ${ticket.title}`
+            }
+            className="size-7 touch-none cursor-grab text-muted-foreground hover:text-foreground active:cursor-grabbing"
           >
-            <SelectTrigger
-              className="w-full"
-              aria-label={`Statut du ticket ${ticket.title}`}
+            {isUpdating ? (
+              <LoaderCircle
+                className="size-3.5 animate-spin motion-reduce:animate-none"
+                aria-hidden="true"
+              />
+            ) : (
+              <GripVertical className="size-3.5" aria-hidden="true" />
+            )}
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              disabled={isUpdating}
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Changer le statut du ticket ${ticket.title}`}
+                  className="size-7 text-muted-foreground hover:text-foreground"
+                />
+              }
             >
-              <SelectValue />
-            </SelectTrigger>
+              <Ellipsis className="size-4" aria-hidden="true" />
+            </DropdownMenuTrigger>
 
-            <SelectContent>
-              <SelectGroup>
-                {statusOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuRadioGroup
+                value={ticket.status}
+                onValueChange={handleStatusChange}
+                disabled={isUpdating}
+              >
+                <DropdownMenuLabel>Déplacer vers</DropdownMenuLabel>
+
+                {ticketStatuses.map(({ value, label, icon: Icon }) => (
+                  <DropdownMenuRadioItem
+                    key={value}
+                    value={value}
+                    closeOnClick
+                    className="gap-2"
+                  >
+                    <Icon
+                      className="size-4 text-muted-foreground"
+                      aria-hidden="true"
+                    />
+                    {label}
+                  </DropdownMenuRadioItem>
                 ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        )}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
 
-        {isUpdating && (
-          <p role="status" className="text-sm text-muted-foreground">
-            Mise à jour…
-          </p>
-        )}
-
-        {updateError && (
-          <p role="alert" className="text-sm text-destructive">
-            {updateError}
-          </p>
-        )}
-      </CardFooter>
+      {ticket.description && (
+        <p className="line-clamp-2 whitespace-pre-wrap break-words text-sm leading-5 text-muted-foreground">
+          {ticket.description}
+        </p>
+      )}
     </Card>
   )
 }

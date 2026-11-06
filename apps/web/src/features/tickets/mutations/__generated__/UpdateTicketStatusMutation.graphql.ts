@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<01fed0aaa882c3b847ec61426daba416>>
+ * @generated SignedSource<<6c25151b31c2ab44495d218aa3aca98f>>
  * @lightSyntaxTransform
  */
 
@@ -20,7 +20,15 @@ export type UpdateTicketStatusMutation$data = {
     readonly updatedAt: string;
   };
 };
+export type UpdateTicketStatusMutation$rawResponse = {
+  readonly updateTicketStatus: {
+    readonly id: string;
+    readonly status: TicketStatus;
+    readonly updatedAt: string;
+  };
+};
 export type UpdateTicketStatusMutation = {
+  rawResponse: UpdateTicketStatusMutation$rawResponse;
   response: UpdateTicketStatusMutation$data;
   variables: UpdateTicketStatusMutation$variables;
 };
@@ -111,6 +119,6 @@ return {
 };
 })();
 
-(node as any).hash = "80649497496ae5bdf04c708e1783fafc";
+(node as any).hash = "7be41185fc03f3208b0b2b0cfd0c77ca";
 
 export default node;
