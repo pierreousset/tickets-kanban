@@ -1,0 +1,17 @@
+{
+  "name": "stack-lab-backend",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint"
+  },
+  "packageManager": "bun@1.4.4",
+  "devDependencies": {
+    "turbo": "2.11.10"
+  }
+}
