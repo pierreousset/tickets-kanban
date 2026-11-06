@@ -1,22 +1,22 @@
-import type { Ticket, TicketStatus } from '../features/tickets/types'
 import { CreateTicketDialog } from '../features/tickets/components/create-ticket-dialog'
 
-export function Header({
-  tickets,
-  setTickets,
+import type { CreateTicketInput, TicketStatus } from '../features/tickets/types'
+
+const Header = ({
+  onCreate,
   statusFilter,
   setStatusFilter,
 }: {
-  tickets: Ticket[]
-  setTickets: (tickets: Ticket[]) => void
+  onCreate: (input: CreateTicketInput) => Promise<void>
   statusFilter: 'all' | TicketStatus
   setStatusFilter: (statusFilter: 'all' | TicketStatus) => void
-}) {
+}) => {
   const filters: { value: 'all' | TicketStatus; label: string }[] = [
     { value: 'all', label: 'Tous' },
     { value: 'todo', label: 'À faire' },
     { value: 'in_progress', label: 'En cours' },
     { value: 'done', label: 'Terminés' },
+    { value: 'cancelled', label: 'Annulés' },
   ]
 
   return (
@@ -30,11 +30,7 @@ export function Header({
           </p>
         </div>
         <div className="flex justify-end">
-          <CreateTicketDialog
-            onCreate={(ticket) => {
-              setTickets([ticket, ...tickets])
-            }}
-          />
+          <CreateTicketDialog onCreate={onCreate} />
         </div>
       </div>
       <div
@@ -61,3 +57,5 @@ export function Header({
     </header>
   )
 }
+
+export { Header }

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { HeadContent, Scripts } from '@tanstack/react-router'
 
-export function RootDocument({ children }: { children: ReactNode }) {
+const RootDocument = ({ children }: { children: ReactNode }) => {
   return (
     <html lang="fr">
       <head>
@@ -14,3 +14,5 @@ export function RootDocument({ children }: { children: ReactNode }) {
     </html>
   )
 }
+
+export { RootDocument }

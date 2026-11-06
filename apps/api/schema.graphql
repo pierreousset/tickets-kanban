@@ -18,3 +18,13 @@ type Ticket {
 type Query {
   tickets: [Ticket!]!
 }
+
+input CreateTicketInput {
+  title: String!
+  description: String! = ""
+}
+
+type Mutation {
+  createTicket(input: CreateTicketInput!): Ticket!
+  updateTicketStatus(id: ID!, status: TicketStatus!): Ticket!
+}

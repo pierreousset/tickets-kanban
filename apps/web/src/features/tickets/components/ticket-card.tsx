@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   Card,
   CardDescription,
@@ -14,20 +16,42 @@ import {
   SelectValue,
 } from '@repo/ui/components/select'
 
-import type { Ticket, TicketStatus } from '../types'
+import { isTicketStatus } from '../types'
+import type { TicketStatus, TicketView } from '../types'
 
 const statusOptions: { value: TicketStatus; label: string }[] = [
   { value: 'todo', label: 'À faire' },
   { value: 'in_progress', label: 'En cours' },
   { value: 'done', label: 'Terminé' },
+  { value: 'cancelled', label: 'Annulé' },
 ]
 
 type TicketCardProps = {
-  ticket: Ticket
-  onStatusChange: (ticketId: string, status: TicketStatus) => void
+  ticket: TicketView
+  onStatusChange: (ticketId: string, status: TicketStatus) => Promise<void>
 }
 
-export function TicketCard({ ticket, onStatusChange }: TicketCardProps) {
+const TicketCard = ({ ticket, onStatusChange }: TicketCardProps) => {
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [updateError, setUpdateError] = useState<string | null>(null)
+
+  const handleStatusChange = async (status: TicketStatus) => {
+    if (isUpdating || status === ticket.status) return
+
+    setIsUpdating(true)
+    setUpdateError(null)
+
+    try {
+      await onStatusChange(ticket.id, status)
+    } catch (error) {
+      setUpdateError(
+        error instanceof Error ? error.message : 'Modification impossible.',
+      )
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -35,38 +59,55 @@ export function TicketCard({ ticket, onStatusChange }: TicketCardProps) {
         <CardDescription>{ticket.description}</CardDescription>
       </CardHeader>
 
-      <CardFooter>
-        <Select
-          items={statusOptions}
-          value={ticket.status}
-          onValueChange={(value) => {
-            if (
-              value === 'todo' ||
-              value === 'in_progress' ||
-              value === 'done'
-            ) {
-              onStatusChange(ticket.id, value)
-            }
-          }}
-        >
-          <SelectTrigger
-            className="w-full"
-            aria-label={`Statut du ticket ${ticket.title}`}
+      <CardFooter className="flex-col items-stretch gap-2">
+        {ticket.status === 'unknown' ? (
+          <p className="text-sm text-muted-foreground">
+            Statut non pris en charge.
+          </p>
+        ) : (
+          <Select
+            items={statusOptions}
+            value={ticket.status}
+            disabled={isUpdating}
+            onValueChange={(value) => {
+              if (isTicketStatus(value)) {
+                void handleStatusChange(value)
+              }
+            }}
           >
-            <SelectValue />
-          </SelectTrigger>
+            <SelectTrigger
+              className="w-full"
+              aria-label={`Statut du ticket ${ticket.title}`}
+            >
+              <SelectValue />
+            </SelectTrigger>
 
-          <SelectContent>
-            <SelectGroup>
-              {statusOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+            <SelectContent>
+              <SelectGroup>
+                {statusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
+
+        {isUpdating && (
+          <p role="status" className="text-sm text-muted-foreground">
+            Mise à jour…
+          </p>
+        )}
+
+        {updateError && (
+          <p role="alert" className="text-sm text-destructive">
+            {updateError}
+          </p>
+        )}
       </CardFooter>
     </Card>
   )
 }
+
+export { TicketCard }

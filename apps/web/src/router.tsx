@@ -1,10 +1,42 @@
 import { createRouter } from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen'
+import { RelayEnvironmentProvider } from 'react-relay'
+import { RecordSource } from 'relay-runtime'
 
-export function getRouter() {
+import { routeTree } from './routeTree.gen'
+import { createRelayEnvironment } from './relay/environment'
+
+type DehydratedRelay = {
+  relaySnapshot: string
+}
+
+const getRouter = () => {
+  const relayEnvironment = createRelayEnvironment()
+
   return createRouter({
     routeTree,
     scrollRestoration: true,
+    context: {
+      relayEnvironment,
+    },
+
+    dehydrate: (): DehydratedRelay => ({
+      relaySnapshot: JSON.stringify(
+        relayEnvironment.getStore().getSource().toJSON(),
+      ),
+    }),
+
+    hydrate: ({ relaySnapshot }: DehydratedRelay) => {
+      const store = relayEnvironment.getStore()
+
+      store.publish(new RecordSource(JSON.parse(relaySnapshot)))
+      store.notify()
+    },
+
+    Wrap: ({ children }) => (
+      <RelayEnvironmentProvider environment={relayEnvironment}>
+        {children}
+      </RelayEnvironmentProvider>
+    ),
   })
 }
 
@@ -13,3 +45,5 @@ declare module '@tanstack/react-router' {
     router: ReturnType<typeof getRouter>
   }
 }
+
+export { getRouter }

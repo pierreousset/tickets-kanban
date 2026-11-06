@@ -1,8 +1,10 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { RootDocument } from '../components/root-document'
-import appCss from '../index.css?url'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import type { RelayRouterContext } from '../relay/environment'
 
-export const Route = createRootRoute({
+import appCss from '../index.css?url'
+import { RootDocument } from '@/components/root-document'
+
+export const Route = createRootRouteWithContext<RelayRouterContext>()({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },

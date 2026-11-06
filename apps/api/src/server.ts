@@ -1,8 +1,9 @@
 import { buildApp } from './app.js'
+import 'dotenv/config'
 
 const app = buildApp()
 
-async function closeServer() {
+const closeServer = async () => {
   try {
     await app.close()
   } catch (error) {
@@ -29,3 +30,5 @@ try {
   process.exitCode = 1
   await closeServer()
 }
+
+export { closeServer }

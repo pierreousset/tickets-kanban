@@ -1,0 +1,18 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!src/**/__generated__/**",
+        "$TURBO_ROOT$/apps/api/schema.graphql",
+        ".env*"
+      ],
+      "outputs": ["dist/**", "src/**/__generated__/**"],
+      "env": ["API_GRAPHQL_URL"]
+    },
+    "dev": {
+      "passThroughEnv": ["API_GRAPHQL_URL"]
+    }
+  }
+}
