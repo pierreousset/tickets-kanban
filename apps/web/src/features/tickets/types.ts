@@ -1,4 +1,5 @@
 import type { CreateTicketMutation } from './mutations/__generated__/CreateTicketMutation.graphql'
+import type { UpdateTicketMutation } from './mutations/__generated__/UpdateTicketMutation.graphql'
 
 export type TicketStatus = 'todo' | 'in_progress' | 'done' | 'cancelled'
 
@@ -27,5 +28,7 @@ const isTicketStatus = (value: unknown): value is TicketStatus => {
 }
 
 export type StatusFilter = 'all' | TicketStatus
+
+export type UpdateTicketInput = UpdateTicketMutation['variables']['input']
 
 export { isTicketStatus }

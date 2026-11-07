@@ -27,4 +27,10 @@ input CreateTicketInput {
 type Mutation {
   createTicket(input: CreateTicketInput!): Ticket!
   updateTicketStatus(id: ID!, status: TicketStatus!): Ticket!
+  updateTicket(id: ID!, input: UpdateTicketInput!): Ticket!
+}
+
+input UpdateTicketInput {
+  title: String!
+  description: String!
 }

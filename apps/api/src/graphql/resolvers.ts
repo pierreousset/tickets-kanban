@@ -6,6 +6,7 @@ import type {
   CreateTicketInput,
   TicketsRepository,
   TicketStatus,
+  UpdateTicketInput,
 } from '../features/tickets/tickets.js'
 
 const uuidPattern =
@@ -52,6 +53,41 @@ const createResolvers = (ticketsRepository: TicketsRepository) => {
         }
 
         const ticket = await ticketsRepository.updateStatus(id, status)
+
+        if (!ticket) {
+          throw new GraphQLError('Ticket introuvable.', {
+            extensions: { code: 'NOT_FOUND' },
+          })
+        }
+
+        return ticket
+      },
+
+      updateTicket: async (
+        _parent: unknown,
+        { id, input }: { id: string; input: UpdateTicketInput },
+      ) => {
+        if (!uuidPattern.test(id)) {
+          throw new GraphQLError('Identifiant de ticket invalide.', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          })
+        }
+
+        const title = input.title.trim()
+
+        if (title.length < 3) {
+          throw new GraphQLError(
+            'Le titre doit contenir au moins 3 caractères.',
+            {
+              extensions: { code: 'BAD_USER_INPUT' },
+            },
+          )
+        }
+
+        const ticket = await ticketsRepository.update(id, {
+          title,
+          description: input.description.trim(),
+        })
 
         if (!ticket) {
           throw new GraphQLError('Ticket introuvable.', {

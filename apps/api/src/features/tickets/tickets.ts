@@ -12,6 +12,11 @@ export type CreateTicketInput = {
   description?: string
 }
 
+export type UpdateTicketInput = {
+  title: string
+  description: string
+}
+
 const createTicketsRepository = (db: Database) => {
   const list = async (): Promise<Ticket[]> => {
     return db
@@ -52,10 +57,28 @@ const createTicketsRepository = (db: Database) => {
     return ticket
   }
 
+  const update = async (
+    id: string,
+    input: UpdateTicketInput,
+  ): Promise<Ticket | undefined> => {
+    const [ticket] = await db
+      .update(ticketsTable)
+      .set({
+        title: input.title,
+        description: input.description,
+        updatedAt: sql`now()`,
+      })
+      .where(eq(ticketsTable.id, id))
+      .returning()
+
+    return ticket
+  }
+
   return {
     list,
     create,
     updateStatus,
+    update,
   }
 }
 

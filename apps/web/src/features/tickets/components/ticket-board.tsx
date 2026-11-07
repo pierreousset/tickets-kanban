@@ -16,6 +16,7 @@ type TicketBoardProps = {
   tickets: TicketView[]
   pendingIds: ReadonlySet<string>
   onStatusChange: (id: string, status: TicketStatus) => Promise<void>
+  onOpen: (id: string) => void
 }
 
 type TicketColumnProps = TicketBoardProps & {
@@ -29,6 +30,7 @@ const TicketColumn = ({
   tickets,
   pendingIds,
   onStatusChange,
+  onOpen,
 }: TicketColumnProps) => {
   const { ref, isDropTarget } = useDroppable({
     id: status,
@@ -64,6 +66,7 @@ const TicketColumn = ({
               ticket={ticket}
               isUpdating={pendingIds.has(ticket.id)}
               onStatusChange={onStatusChange}
+              onOpen={onOpen}
             />
           </li>
         ))}
@@ -82,6 +85,7 @@ const TicketBoard = ({
   tickets,
   pendingIds,
   onStatusChange,
+  onOpen,
 }: TicketBoardProps) => {
   const unknownTickets = tickets.filter((ticket) => ticket.status === 'unknown')
 
@@ -112,6 +116,7 @@ const TicketBoard = ({
             tickets={tickets.filter((ticket) => ticket.status === value)}
             pendingIds={pendingIds}
             onStatusChange={onStatusChange}
+            onOpen={onOpen}
           />
         ))}
 
@@ -122,6 +127,7 @@ const TicketBoard = ({
             tickets={unknownTickets}
             pendingIds={pendingIds}
             onStatusChange={onStatusChange}
+            onOpen={onOpen}
           />
         )}
       </div>

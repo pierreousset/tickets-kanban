@@ -21,12 +21,14 @@ type TicketCardProps = {
   ticket: TicketView
   isUpdating: boolean
   onStatusChange: (id: string, status: TicketStatus) => Promise<void>
+  onOpen: (id: string) => void
 }
 
 const TicketCard = ({
   ticket,
   isUpdating,
   onStatusChange,
+  onOpen,
 }: TicketCardProps) => {
   const { ref, handleRef, isDragging } = useDraggable({
     id: ticket.id,
@@ -51,7 +53,7 @@ const TicketCard = ({
       aria-labelledby={`ticket-title-${ticket.id}`}
       aria-busy={isUpdating}
       className={cn(
-        'gap-2 rounded-xl border border-border/70 bg-card p-3 shadow-xs ring-0',
+        'relative isolate gap-2 rounded-xl border border-border/70 bg-card p-3 shadow-xs ring-0',
         'transition-[border-color,box-shadow] duration-150 motion-reduce:transition-none',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         isDragging
@@ -64,10 +66,19 @@ const TicketCard = ({
           id={`ticket-title-${ticket.id}`}
           className="min-w-0 flex-1 break-words pt-1 text-sm font-medium leading-5"
         >
-          {ticket.title}
+          <Button
+            id={`ticket-open-${ticket.id}`}
+            type="button"
+            variant="ghost"
+            aria-haspopup="dialog"
+            onClick={() => onOpen(ticket.id)}
+            className="static block h-auto w-full whitespace-normal rounded-sm p-0 text-left text-sm font-medium leading-5 hover:bg-transparent after:absolute after:inset-0 after:rounded-xl after:content-['']"
+          >
+            {ticket.title}
+          </Button>
         </h3>
 
-        <div className="flex shrink-0 items-center">
+        <div className="relative z-10 flex shrink-0 items-center">
           <Button
             ref={handleRef}
             type="button"

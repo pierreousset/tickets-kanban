@@ -11,8 +11,17 @@ import type { CreateTicketMutation } from '../mutations/__generated__/CreateTick
 import { updateTicketStatusMutation } from '../mutations/UpdateTicketStatusMutation'
 import type { UpdateTicketStatusMutation } from '../mutations/__generated__/UpdateTicketStatusMutation.graphql'
 
+import { updateTicketMutation } from '../mutations/UpdateTicketMutation'
+import type { UpdateTicketMutation } from '../mutations/__generated__/UpdateTicketMutation.graphql'
+
 import { isTicketStatus } from '../types'
-import type { CreateTicketInput, TicketStatus, TicketView } from '../types'
+
+import type {
+  CreateTicketInput,
+  TicketStatus,
+  TicketView,
+  UpdateTicketInput,
+} from '../types'
 
 const useTickets = () => {
   const environment = useRelayEnvironment()
@@ -100,10 +109,34 @@ const useTickets = () => {
     })
   }
 
+  const updateTicket = (
+    id: string,
+    input: UpdateTicketInput,
+  ): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      commitMutation<UpdateTicketMutation>(environment, {
+        mutation: updateTicketMutation,
+        variables: { id, input },
+
+        onCompleted: (_response, errors) => {
+          if (errors?.length) {
+            reject(new Error(errors.map((error) => error.message).join('\n')))
+            return
+          }
+
+          resolve()
+        },
+
+        onError: reject,
+      })
+    })
+  }
+
   return {
     tickets,
     createTicket,
     updateTicketStatus,
+    updateTicket,
   }
 }
 
