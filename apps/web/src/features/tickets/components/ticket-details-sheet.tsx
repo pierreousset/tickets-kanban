@@ -350,55 +350,57 @@ const TicketDetailsSheet = ({
               )}
             </div>
 
-            <DeleteTicketDialog
-              ticket={ticket}
-              hidden={isEditing}
-              disabled={isUpdating || isSubmitting}
-              onDelete={onDelete}
-              onDeleted={() => onOpenChange(false)}
-            />
-
             <SheetFooter className="shrink-0 gap-2 border-t p-4">
-              {isEditing ? (
-                <>
-                  <Button
-                    type="submit"
-                    form={formId}
-                    disabled={
-                      !canSubmit || !hasChanges || isSubmitting || isUpdating
-                    }
-                  >
-                    {isSubmitting ? 'Enregistrement…' : 'Enregistrer'}
-                  </Button>
+              <DeleteTicketDialog
+                ticket={ticket}
+                hidden={isEditing}
+                disabled={isUpdating || isSubmitting}
+                onDelete={onDelete}
+                onDeleted={() => onOpenChange(false)}
+              />
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isSubmitting}
-                    onClick={handleCancelEditing}
-                  >
-                    Annuler
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {ticket && (
+              <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                {isEditing ? (
+                  <>
                     <Button
                       type="button"
-                      disabled={isUpdating}
-                      onClick={handleStartEditing}
+                      variant="outline"
+                      disabled={isSubmitting}
+                      onClick={handleCancelEditing}
                     >
-                      Modifier
+                      Annuler
                     </Button>
-                  )}
 
-                  <SheetClose
-                    render={<Button type="button" variant="outline" />}
-                  >
-                    Fermer
-                  </SheetClose>
-                </>
-              )}
+                    <Button
+                      type="submit"
+                      form={formId}
+                      disabled={
+                        !canSubmit || !hasChanges || isSubmitting || isUpdating
+                      }
+                    >
+                      {isSubmitting ? 'Enregistrement…' : 'Enregistrer'}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <SheetClose
+                      render={<Button type="button" variant="outline" />}
+                    >
+                      Fermer
+                    </SheetClose>
+
+                    {ticket && (
+                      <Button
+                        type="button"
+                        disabled={isUpdating}
+                        onClick={handleStartEditing}
+                      >
+                        Modifier
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
             </SheetFooter>
           </SheetContent>
         )}
