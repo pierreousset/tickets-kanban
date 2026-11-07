@@ -97,6 +97,18 @@ const createResolvers = (ticketsRepository: TicketsRepository) => {
 
         return ticket
       },
+
+      deleteTicket: async (_parent: unknown, { id }: { id: string }) => {
+        if (!uuidPattern.test(id)) {
+          throw new GraphQLError('Identifiant de ticket invalide.', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          })
+        }
+
+        const deletedId = await ticketsRepository.remove(id)
+
+        return deletedId ?? id.toLowerCase()
+      },
     },
   } satisfies IResolvers
 }

@@ -24,7 +24,12 @@ type MoveError = {
 }
 
 const App = () => {
-  const { tickets, createTicket, updateTicketStatus, updateTicket } =
+  const { tickets,
+    createTicket,
+    updateTicketStatus,
+    updateTicket,
+    deleteTicket,
+  } =
     useTickets()
 
   const [search, setSearch] = useState('')
@@ -147,6 +152,37 @@ const App = () => {
     if (!moveError) return
 
     await handleStatusChange(moveError.ticketId, moveError.status)
+  }
+
+  const handleDeleteTicket = async (id: string): Promise<void> => {
+    if (pendingIdsRef.current.has(id)) {
+      throw new Error(
+        'Une modification de ce ticket est déjà en cours. Réessaie dans un instant.',
+      )
+    }
+
+    const title = tickets.find((ticket) => ticket.id === id)?.title
+
+    pendingIdsRef.current.add(id)
+    setPendingIds(new Set(pendingIdsRef.current))
+
+    try {
+      await deleteTicket(id)
+
+      focusTicketIdRef.current = null
+      setMoveError((current) =>
+        current?.ticketId === id ? null : current,
+      )
+
+      toast.add({
+        type: 'success',
+        title: 'Ticket supprimé',
+        description: title,
+      })
+    } finally {
+      pendingIdsRef.current.delete(id)
+      setPendingIds(new Set(pendingIdsRef.current))
+    }
   }
 
   const handleUpdateTicket = async (
@@ -294,6 +330,7 @@ const App = () => {
         onOpenChangeComplete={handleDetailsOpenChangeComplete}
         onSave={handleUpdateTicket}
         feedback={detailsOpen ? errorFeedback : null}
+        onDelete={handleDeleteTicket}
       />
 
       <Toaster limit={3} timeout={4000} />

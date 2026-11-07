@@ -14,6 +14,9 @@ import type { UpdateTicketStatusMutation } from '../mutations/__generated__/Upda
 import { updateTicketMutation } from '../mutations/UpdateTicketMutation'
 import type { UpdateTicketMutation } from '../mutations/__generated__/UpdateTicketMutation.graphql'
 
+import { deleteTicketMutation } from '../mutations/DeleteTicketMutation'
+import type { DeleteTicketMutation } from '../mutations/__generated__/DeleteTicketMutation.graphql'
+
 import { isTicketStatus } from '../types'
 
 import type {
@@ -132,11 +135,52 @@ const useTickets = () => {
     })
   }
 
+  const deleteTicket = (id: string): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      commitMutation<DeleteTicketMutation>(environment, {
+        mutation: deleteTicketMutation,
+        variables: { id },
+
+        updater(store, response) {
+          const deletedId = response?.deleteTicket
+
+          if (typeof deletedId !== 'string') return
+
+          const root = store.getRoot()
+          const current = root.getLinkedRecords('tickets')
+
+          if (current) {
+            root.setLinkedRecords(
+              current.filter(
+                (ticket) => ticket != null && ticket.getDataID() !== deletedId,
+              ),
+              'tickets',
+            )
+          }
+
+          store.delete(deletedId)
+        },
+
+        onCompleted: (_response, errors) => {
+          if (errors?.length) {
+            reject(new Error(errors.map((error) => error.message).join('\n')))
+            return
+          }
+
+          resolve()
+        },
+
+        onError: reject,
+      })
+    })
+  }
+
   return {
     tickets,
     createTicket,
     updateTicketStatus,
     updateTicket,
+    deleteTicket,
   }
 }
 

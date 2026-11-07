@@ -74,11 +74,21 @@ const createTicketsRepository = (db: Database) => {
     return ticket
   }
 
+  const remove = async (id: string): Promise<string | undefined> => {
+    const [deleted] = await db
+      .delete(ticketsTable)
+      .where(eq(ticketsTable.id, id))
+      .returning({ id: ticketsTable.id })
+
+    return deleted?.id
+  }
+
   return {
     list,
     create,
     updateStatus,
     update,
+    remove,
   }
 }
 

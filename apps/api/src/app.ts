@@ -4,33 +4,46 @@ import mercurius from 'mercurius'
 
 import { createDatabase } from './db/client.js'
 import { createTicketsRepository } from './features/tickets/tickets.js'
+import type { TicketsRepository } from './features/tickets/tickets.js'
 import { createResolvers } from './graphql/resolvers.js'
 
-const buildApp = () => {
-  const app = Fastify({ logger: true })
+type BuildAppOptions = {
+  ticketsRepository?: TicketsRepository
+  logger?: boolean
+}
+
+const buildApp = ({
+  ticketsRepository,
+  logger = true,
+}: BuildAppOptions = {}) => {
+  const app = Fastify({ logger })
 
   const schema = readFileSync(
     new URL('../schema.graphql', import.meta.url),
     'utf8',
   )
 
-  const database = createDatabase()
-  const ticketsRepository = createTicketsRepository(database.db)
+  let repository = ticketsRepository
 
-  database.pool.on('error', (error) => {
-    app.log.error(
-      { err: error },
-      'Une connexion PostgreSQL inactive a été interrompue.',
-    )
-  })
+  if (!repository) {
+    const database = createDatabase()
+    repository = createTicketsRepository(database.db)
 
-  app.addHook('onReady', async () => {
-    await database.pool.query('SELECT 1')
-  })
+    database.pool.on('error', (error) => {
+      app.log.error(
+        { err: error },
+        'Une connexion PostgreSQL inactive a été interrompue.',
+      )
+    })
 
-  app.addHook('onClose', async () => {
-    await database.close()
-  })
+    app.addHook('onReady', async () => {
+      await database.pool.query('SELECT 1')
+    })
+
+    app.addHook('onClose', async () => {
+      await database.close()
+    })
+  }
 
   app.get('/health', async () => ({
     status: 'ok',
@@ -38,7 +51,7 @@ const buildApp = () => {
 
   app.register(mercurius, {
     schema,
-    resolvers: createResolvers(ticketsRepository),
+    resolvers: createResolvers(repository),
     graphiql: process.env.NODE_ENV === 'development',
   })
 

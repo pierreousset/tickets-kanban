@@ -24,6 +24,8 @@ import {
   SheetTitle,
 } from '@repo/ui/components/sheet'
 
+import { DeleteTicketDialog } from './delete-ticket-dialog'
+
 import { ticketStatuses } from '../ticket-statuses'
 import type { TicketView, UpdateTicketInput } from '../types'
 
@@ -44,7 +46,8 @@ type TicketDetailsSheetProps = {
   onOpenChange: (open: boolean) => void
   onOpenChangeComplete: (open: boolean) => void
   onSave: (id: string, input: UpdateTicketInput) => Promise<void>
-  feedback?: ReactNode
+  feedback?: ReactNode,
+  onDelete: (id: string) => Promise<void>
 }
 
 const TicketDetailsSheet = ({
@@ -124,7 +127,7 @@ const TicketDetailsSheet = ({
 
   const handleOpenChange: SheetOpenChangeHandler = (nextOpen, details) => {
     if (!nextOpen) {
-      if (form.state.isSubmitting) {
+      if (form.state.isSubmitting || isUpdating) {
         details.cancel()
         return
       }
@@ -184,7 +187,7 @@ const TicketDetailsSheet = ({
             state.canSubmit,
             state.isSubmitting,
             state.values.title !== initialValues.title ||
-              state.values.description !== initialValues.description,
+            state.values.description !== initialValues.description,
           ] as const
         }
       >
@@ -345,6 +348,14 @@ const TicketDetailsSheet = ({
                 </p>
               )}
             </div>
+
+            <DeleteTicketDialog
+              ticket={ticket}
+              hidden={isEditing}
+              disabled={isUpdating || isSubmitting}
+              onDelete={onDelete}
+              onDeleted={() => onOpenChange(false)}
+            />
 
             <SheetFooter className="shrink-0 gap-2 border-t p-4">
               {isEditing ? (

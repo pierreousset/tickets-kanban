@@ -9,7 +9,9 @@
     "build": "tsc -p tsconfig.json",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "oxlint",
+    "test": "tsc -p tsconfig.test.json && node --import tsx --test test/tickets.test.ts"
   },
   "dependencies": {
     "dotenv": "18.0.9",
