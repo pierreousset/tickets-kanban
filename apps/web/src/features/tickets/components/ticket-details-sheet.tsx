@@ -58,6 +58,7 @@ const TicketDetailsSheet = ({
   onOpenChangeComplete,
   onSave,
   feedback,
+  onDelete,
 }: TicketDetailsSheetProps) => {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const titleInputRef = useRef<HTMLInputElement>(null)

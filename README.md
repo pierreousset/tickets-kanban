@@ -4,6 +4,10 @@ Application de gestion de tickets construite pour explorer une architecture
 full stack TypeScript : rendu serveur, API GraphQL, cache client normalisé
 et persistance PostgreSQL.
 
+![Tableau kanban](docs/images/kanban.jpg)
+
+![Fiche détaillée d’un ticket](docs/images/ticket-details.jpg)
+
 ## Fonctionnalités
 
 - Création, consultation, modification et suppression des tickets.
